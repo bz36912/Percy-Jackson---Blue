@@ -14,6 +14,7 @@ class Uart:
         print("Uart:__init__(): starting the UART thead")
         shellThread = threading.Thread(target=self.thread_entry)
         shellThread.start()
+        self.x, self.y, self.z = -1, -1, -1
 
     def thread_entry(self):
         while True:
@@ -36,10 +37,13 @@ class Uart:
         try:
             data = eval(line)
 
-            x, y, z = data['x'], data['y'], data['z']
-            print(f"the acceleration is ({x}, {y}, {z}) ms-2")
+            self.x, self.y, self.z = data['x'], data['y'], data['z']
+            print(f"the acceleration is ({self.x}, {self.y}, {self.z}) ms-2")
         except:
             return
+        
+    def get_acceleration(self):
+        return self.x, self.y, self.z
 
 if __name__ == "__main__":
     uart = Uart('/dev/tty.usbmodem0010502493171') # '/dev/tty.usbmodem0010502493171'
