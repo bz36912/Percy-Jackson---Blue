@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "rssi_data.h": "c",
+        "ble_data.h": "c"
+    }
+}
