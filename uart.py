@@ -4,49 +4,31 @@ import threading
 from queue import Queue
 import time
 
-uartTxQueue = Queue(30)
-uartRxDataQueue = Queue(30)
-uartRxConfigQueue = Queue(30)
-
 class Uart:
     def __init__(self, port:str) -> None:
         self.ser = serial.Serial(port, 115200, timeout=1)
-
-        print("Uart:__init__(): starting the UART thead")
-        shellThread = threading.Thread(target=self.thread_entry)
-        shellThread.start()
-        self.x, self.y, self.z = -1, -1, -1
-        self.startTime = time.time()
-
-    def thread_entry(self):
-        while True:
-            # listen to the port
-            line = self.ser.readline().decode().strip()
-            self.process_line(line)
-
-            # check the TX queue
-            try:
-                string:str = uartTxQueue.get_nowait() + "\n"
-                print("UART sending:", string)
-                self.ser.write(string.encode())
-            except: # empty exception is raised, and nothing to be sent
-                pass
-
+        print("Uart:__init__()")
+        
     def process_line(self, line):
         if len(line) == 0:
             return
         
         try:
             data = eval(line)
-
-            self.x, self.y, self.z = data['x'], data['y'], data['z']
-            timeStamp = round(time.time() - self.startTime, 3)
-            print(f"the acceleration is ({self.x}, {self.y}, {self.z}) ms-2, time: {timeStamp}")
+            return data['x'], data['y'], data['z']
         except:
-            return
+            return None
         
     def get_acceleration(self):
-        return self.x, self.y, self.z
+        line = self.ser.readline().decode().strip()
+        return self.process_line(line)
 
 if __name__ == "__main__":
     uart = Uart('/dev/tty.usbmodem0010502493171') # '/dev/tty.usbmodem0010502493171'
+    startTime = time.time()
+    while True:
+        ret = uart.get_acceleration()
+        if ret is not None:
+            x, y, z = ret
+            timeStamp = round(time.time() - startTime, 3)
+            print(f"the acceleration is ({x}, {y}, {z}) ms-2, time: {timeStamp}")
