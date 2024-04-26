@@ -8,7 +8,7 @@ static struct bt_le_scan_param scan_param = {
 	.window     = BT_GAP_SCAN_FAST_WINDOW,
 };
 
-K_MSGQ_DEFINE(bleQueue, sizeof(float) * AD_MAX_NUM_READINGS * ACC_NUM_AXIS, 20, 1);
+K_MSGQ_DEFINE(bleQueue, sizeof(float) * QUEUE_ELEM_SIZE, 20, 1);
 static char targetAddr[BT_ADDR_LE_STR_LEN] = ""; // the BLE address to look/filter for
 
 static void ble_to_readings(uint8_t input[AD_PAYLOAD_LEN], float* output) {
@@ -21,7 +21,7 @@ static void ble_to_readings(uint8_t input[AD_PAYLOAD_LEN], float* output) {
 
 static bool search_eir_found(struct bt_data *data, void *addrStr)
 {
-    const uint8_t AD_UUID[AD_UUID_LEN] = {0xF1, 0x45, 0x98, 0x91};
+    const uint8_t AD_UUID[AD_UUID_LEN] = {0xF1, 0x45, 0x98};
     if (!memcmp(AD_UUID, data->data, AD_UUID_LEN)) {
         printf("FOUND the device. Its addr is %s, its length: %d, type: %d\n", (char*)addrStr, data->data_len, data->type);
         strcpy(targetAddr, (char*)addrStr);
@@ -29,10 +29,19 @@ static bool search_eir_found(struct bt_data *data, void *addrStr)
     return false;
 }
 
+static int transIndex = 0;
 static bool extract_eir_found(struct bt_data *data, void *addrStr)
 {
-    float readings[AD_MAX_NUM_READINGS * ACC_NUM_AXIS];
-    ble_to_readings((uint8_t*)(data->data) + AD_UUID_LEN, readings);
+    float readings[QUEUE_ELEM_SIZE];
+    if (data->data[AD_UUID_LEN] == transIndex) { // the bytes after UUID indexes the transmission over time
+        printf("duplicate ad: %d\n", transIndex);
+        return false; // this is a duplicate advertisement, so don't add to the queue
+    }
+    transIndex = data->data[AD_UUID_LEN];
+
+    // creating the element to be added to the queue
+    readings[QUEUE_ELEM_SIZE - 1] = data->data[AD_UUID_LEN]; 
+    ble_to_readings((uint8_t*)(data->data) + AD_UUID_LEN + AD_INDEX_LEN, readings);
     if (k_msgq_put(&bleQueue, &readings, K_NO_WAIT)) {
         printf("adding to bleQueue failed\n");
     }

@@ -26,13 +26,18 @@ int main(void)
 	mysensor_setup(accMeter);
 
 	printf("before the while loop\n");
+	// int64_t prevTime = k_uptime_get();
 	while (true) {
 		float readings[AD_MAX_NUM_READINGS * ACC_NUM_AXIS];
 		for (int i = 0; i < AD_MAX_NUM_READINGS; i++) {
 			float* values = readings + i * ACC_NUM_AXIS;
+			// prevTime = k_uptime_get();
 			if (!mysensor_process_array_data(accMeter, ACC_NUM_AXIS, SENSOR_CHAN_ACCEL_XYZ, values)) {
 				printf("xyz: (%.2f, %.2f, %.2f)\n", (double)(values[X_AXIS]), (double)(values[Y_AXIS]), (double)(values[Z_AXIS]));
 			}
+			// if (k_uptime_get() - prevTime < BLE_ADVERTISEMENT_DURATION / AD_MAX_NUM_READINGS) {
+			// 	k_sleep(K_MSEC(1));
+			// }
 			k_sleep(K_MSEC(BLE_ADVERTISEMENT_DURATION / AD_MAX_NUM_READINGS));
 		}
 		

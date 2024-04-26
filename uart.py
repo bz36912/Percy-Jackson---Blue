@@ -2,6 +2,7 @@ import serial
 import matplotlib.pyplot as plt
 import threading
 from queue import Queue
+import time
 
 uartTxQueue = Queue(30)
 uartRxDataQueue = Queue(30)
@@ -15,6 +16,7 @@ class Uart:
         shellThread = threading.Thread(target=self.thread_entry)
         shellThread.start()
         self.x, self.y, self.z = -1, -1, -1
+        self.startTime = time.time()
 
     def thread_entry(self):
         while True:
@@ -38,7 +40,8 @@ class Uart:
             data = eval(line)
 
             self.x, self.y, self.z = data['x'], data['y'], data['z']
-            print(f"the acceleration is ({self.x}, {self.y}, {self.z}) ms-2")
+            timeStamp = round(time.time() - self.startTime, 3)
+            print(f"the acceleration is ({self.x}, {self.y}, {self.z}) ms-2, time: {timeStamp}")
         except:
             return
         

@@ -19,15 +19,17 @@
 int main(void)
 {
 	ble_setup();
-	float readings[AD_MAX_NUM_READINGS * ACC_NUM_AXIS];
+	float readings[QUEUE_ELEM_SIZE];
 	
 	printf("before the while loop\n");
 	while (true) {
 		if (k_msgq_get(&bleQueue, &readings, K_MSEC(500)) == 0) {
-			for (int i = 0; i < AD_MAX_NUM_READINGS; i += ACC_NUM_AXIS) {
+			for (int i = 0; i < AD_MAX_NUM_READINGS; i += 1) {
 				char buf[64];
-				float* timeStep = readings + i;
-				sprintf(buf, "{'x': %.2f, 'y': %.2f, 'z': %.2f}", (double)timeStep[X_AXIS], (double)timeStep[Y_AXIS], (double)timeStep[Z_AXIS]);
+				float* timeStep = readings + i * ACC_NUM_AXIS;
+				float transIndex = readings[QUEUE_ELEM_SIZE - 1] + (float)i / (float)100.0;
+				sprintf(buf, "{'x': %.2f, 'y': %.2f, 'z': %.2f, 'index': %.2f}", (double)timeStep[X_AXIS], 
+					(double)timeStep[Y_AXIS], (double)timeStep[Z_AXIS], (double)transIndex);
 				usb_uart_send_str(buf);
 			}
 		}

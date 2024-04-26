@@ -3,6 +3,7 @@
 
 static bool firstTime = true; // flag; true if advertisement has not started
 static bool enablePrint = true;
+static uint8_t indexCount = 0;
 
 static void ble_to_bytes(float* input, uint8_t output[AD_PAYLOAD_LEN]) {
     for (int i = 0; i < AD_PAYLOAD_LEN; i += 2) {
@@ -18,12 +19,17 @@ static void ble_to_bytes(float* input, uint8_t output[AD_PAYLOAD_LEN]) {
 }
 
 static const struct bt_data ble_create_advert(float* readings, uint8_t* output) {
-    const uint8_t AD_UUID[AD_UUID_LEN] = {0xF1, 0x45, 0x98, 0x91};
+    const uint8_t AD_UUID[AD_UUID_LEN] = {0xF1, 0x45, 0x98}; // 0x91
     memset(output, 0, (size_t)(AD_MAX_NUM_BYTES));
     // setting the UUID
     memcpy(output, AD_UUID, AD_UUID_LEN); // sets the UUID values
+    indexCount++;
+    if (indexCount > 255) {
+        indexCount = 0;
+    }
+    output[AD_UUID_LEN] = indexCount; // the byte after the UUID indexes which advertisement it is over time
 
-    ble_to_bytes(readings, output + AD_UUID_LEN);
+    ble_to_bytes(readings, output + AD_UUID_LEN + AD_INDEX_LEN);
 
     const struct bt_data content = {
         .type = BT_DATA_MANUFACTURER_DATA,
@@ -52,7 +58,7 @@ extern void ble_advertise_readings(float* readings) {
     // start/update the advertisement
 	if (firstTime) {
         for (int i = 0; i < 3; i++) {
-            int rc = bt_le_adv_start(BT_LE_ADV_NCONN, ad, ARRAY_SIZE(ad),
+            int rc = bt_le_adv_start(BT_LE_ADV_NCONN_FAST, ad, ARRAY_SIZE(ad),
 			NULL, 0);
 		    if (rc) {
 			    printf("ERROR: advert start failed, with error code: %d\n", rc);

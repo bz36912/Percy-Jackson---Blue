@@ -15,10 +15,12 @@
 
 // format parameter for the BLE protocol
 #define AD_MAX_NUM_BYTES 28
-#define AD_UUID_LEN 4
-#define AD_PAYLOAD_LEN (AD_MAX_NUM_BYTES - AD_UUID_LEN)
+#define AD_UUID_LEN 3
+#define AD_INDEX_LEN 1
+#define AD_PAYLOAD_LEN (AD_MAX_NUM_BYTES - AD_UUID_LEN - AD_INDEX_LEN)
 #define AD_MAX_NUM_READINGS (int)(AD_PAYLOAD_LEN / ACC_BYTES_PER_READING)
 
+#define QUEUE_ELEM_SIZE (AD_MAX_NUM_READINGS * ACC_NUM_AXIS + 1) // the numbeer of floats in each element
 extern struct k_msgq bleQueue;
 
 extern void ble_advertise_readings(float* readings);
