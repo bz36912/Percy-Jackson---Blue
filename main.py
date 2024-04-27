@@ -11,7 +11,10 @@ if __name__ == "__main__":
     
     # Example of changing label text
     # gui.set_label_text("New X Value", "New Y Value", "New Z Value")
-    uart = Uart('COM7')# Change depending on thing
+    try:
+        uart = Uart('COM7') # Change depending on thing
+    except:
+        uart = Uart('/dev/tty.usbmodem0010502493171')
     startTime = time.time()
     t = startTime
     while True:
