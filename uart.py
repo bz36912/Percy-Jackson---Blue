@@ -11,7 +11,7 @@ class Uart:
         
     def process_line(self, line):
         if len(line) == 0:
-            return
+            return None
         
         try:
             data = eval(line)
