@@ -22,6 +22,9 @@ class Uart:
     def get_acceleration(self):
         line = self.ser.readline().decode().strip()
         return self.process_line(line)
+    
+    def reset(self):
+        self.ser.reset_input_buffer()
 
 if __name__ == "__main__":
     uart = Uart('/dev/tty.usbmodem0010502493171') # '/dev/tty.usbmodem0010502493171'
