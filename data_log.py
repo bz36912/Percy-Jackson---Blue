@@ -27,13 +27,13 @@ def visualise_data(data:np.ndarray):
     # visualise the data for debugging
     reshaped = data.reshape(-1, NUM_FEATURES)
     fig, axs = plt.subplots(NUM_FEATURES, 1)
-    timeSteps = np.arange(NUM_TIMESTEPS)
-    majorTicks = np.arange(0, NUM_TIMESTEPS + 1, STEPS_PER_SAMPLE)
+    timeSteps = np.arange(reshaped.shape[0])
+    majorTicks = np.arange(0, reshaped.shape[0] + 1, STEPS_PER_SAMPLE)
     for i in range(NUM_FEATURES):
         axs[i].plot(timeSteps, reshaped[::, i])
         axs[i].set_xticks(majorTicks)
         axs[i].grid(which='major', alpha=0.8)
-    fig.show()
+    plt.show()
 
 def continuous_sampling(uart:Uart, fileName):
     data = np.zeros((NUM_TIMESTEPS, NUM_FEATURES), dtype=float)
