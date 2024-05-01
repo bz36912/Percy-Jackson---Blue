@@ -9,19 +9,22 @@ class Uart:
         self.ser = serial.Serial(port, 115200, timeout=1)
         print("Uart:__init__()")
         
-    def process_line(self, line):
+    def process_line(self, line, getIdex=False):
         if len(line) == 0:
             return None
         
         try:
             data = eval(line)
-            return data['x'], data['y'], data['z']
+            if getIdex:
+                return data['x'], data['y'], data['z'], data['index']
+            else:
+                return data['x'], data['y'], data['z']
         except:
             return None
         
-    def get_acceleration(self):
+    def get_acceleration(self, getIdex=False):
         line = self.ser.readline().decode().strip()
-        return self.process_line(line)
+        return self.process_line(line, getIdex)
     
     def reset(self):
         self.ser.reset_input_buffer()

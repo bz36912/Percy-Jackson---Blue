@@ -4,19 +4,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 import keyboard
 
-NUM_SAMPLES_PER_CLASS = 7
+NUM_SAMPLES_PER_CLASS = 50
 SAMPLING_WINDOW_DURATION = 3 # sec
 SAMPLING_FREQUENCY = 40 # Hz
 NUM_FEATURES = 3
 STEPS_PER_SAMPLE = SAMPLING_WINDOW_DURATION * SAMPLING_FREQUENCY
 NUM_TIMESTEPS = NUM_SAMPLES_PER_CLASS * STEPS_PER_SAMPLE
 
-def get_uart_data(uart):
+prevIndex = 0
+
+def get_uart_data(uart:Uart):
+    global prevIndex
     ret = None
     for j in range(3):
-        ret = uart.get_acceleration()
+        ret = uart.get_acceleration(getIdex=True)
         if ret is not None:
-            x, y, z = ret
+            x, y, z, index = ret
+            if index - prevIndex >= 2:
+                print("mismatch between prevIndex and index", prevIndex, index)
+            prevIndex = index
             return [x, y, z]
     
     if ret is None:
@@ -38,13 +44,15 @@ def visualise_data(data:np.ndarray):
 def continuous_sampling(uart:Uart, fileName):
     data = np.zeros((NUM_TIMESTEPS, NUM_FEATURES), dtype=float)
     startTime = time.time()
+    sampleTime = time.time()
 
     uart.reset()
     for i in range(NUM_TIMESTEPS):
         data[i] = get_uart_data(uart)
         if i % (STEPS_PER_SAMPLE) == 0:
-            print("collecting sample number:", i / (STEPS_PER_SAMPLE))
-    print("finished collecting data after", time.time() - startTime)
+            print("collecting sample number:", i / (STEPS_PER_SAMPLE), time.time() - sampleTime)
+            sampleTime = time.time()
+    print("finished collecting data after", time.time() - startTime) # at home it take 156 sec for 50 samples
 
     visualise_data(data)
 
@@ -61,27 +69,31 @@ def toggle_sampling(uart:Uart, sittingFileName, standingFileName):
     for i in range(NUM_SAMPLES_PER_CLASS):
         # collect sitting data
         print("SIT data sample", i)
-        # pressing the space bar starts the data collection
+        # pressing the "r" key starts the data collection
+
         while True:
             if keyboard.read_key() == "r":
                 break
         
         uart.reset()
+        sampleTime = time.time()
         for j in range(STEPS_PER_SAMPLE):
             sitData[i * STEPS_PER_SAMPLE + j] = get_uart_data(uart)
-        print("completed SIT data sample", i)
+        print("completed SIT data sample", i, "time:", time.time() - sampleTime)
         
         # collect standing data
         print("STAND data sample", i)
-        # pressing the space bar starts the data collection
+        # pressing the "r" key starts the data collection
+
         while True:
             if keyboard.read_key() == "r":
                 break
         
         uart.reset()
+        sampleTime = time.time()
         for j in range(STEPS_PER_SAMPLE):
             standData[i * STEPS_PER_SAMPLE + j] = get_uart_data(uart)
-        print("completed STAND data sample", i)
+        print("completed STAND data sample", i, "time:", time.time() - sampleTime)
     
     visualise_data(sitData)
     visualise_data(standData)
@@ -103,8 +115,8 @@ if __name__ == "__main__":
         except:
             uart = Uart('COM15')
 
-    toggle_sampling(uart, "sit", "stand")
-    # continuous_sampling(uart, "walk")
+    toggle_sampling(uart, "test", "ing")
+    # continuous_sampling(uart, "check_connectivity")
 
 
     
