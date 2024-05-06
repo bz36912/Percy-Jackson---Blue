@@ -1,16 +1,15 @@
 import numpy as np
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import *
-from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.losses import MeanSquaredError
-from tensorflow.keras.metrics import RootMeanSquaredError
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import * # type: ignore
+from tensorflow.keras.callbacks import ModelCheckpoint # type: ignore
+from tensorflow.keras.losses import MeanSquaredError # type: ignore
+from tensorflow.keras.metrics import RootMeanSquaredError # type: ignore
+from tensorflow.keras.optimizers import Adam # type: ignore
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-# should i normalize the data
 
 NUM_OF_SAMPLES = 50
 DATA_POINTS_PER_SAMPLE = 120
@@ -87,10 +86,10 @@ if __name__ == "__main__":
 
     
     model1 = Sequential()
-    model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT)))
-    model1.add(LSTM(64))
-    model1.add(Dense(8, 'relu'))
-    model1.add(Dense(4, 'softmax'))
+    model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT))) # type: ignore
+    model1.add(LSTM(64)) # type: ignore
+    model1.add(Dense(8, 'relu')) # type: ignore
+    model1.add(Dense(4, 'softmax')) # type: ignore
 
     model1.summary()
 
