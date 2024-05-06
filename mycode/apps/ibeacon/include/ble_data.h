@@ -5,7 +5,7 @@
 #include <zephyr/bluetooth/bluetooth.h>
 
 // controls the advertisement
-#define BLE_ADVERTISEMENT_DURATION BT_GAP_ADV_FAST_INT_MAX_1 // in milli-seconds
+#define BLE_ADVERTISEMENT_DURATION 150 // in milli-seconds
 // custom Bluetooth config for fast advertisement
 #define BT_LE_ADV_NCONN_FAST BT_LE_ADV_PARAM(0, BT_GAP_ADV_FAST_INT_MIN_1, \
 					BT_GAP_ADV_FAST_INT_MAX_1, NULL)

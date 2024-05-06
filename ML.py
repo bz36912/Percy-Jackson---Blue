@@ -1,12 +1,12 @@
 import numpy as np
-import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import *
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.keras.optimizers import Adam
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
@@ -18,42 +18,79 @@ NO_DATA_PER_POINT = 3
 WALKING_ENCODE = 1
 RUNNING_ENCODE = 2
 SITTING_ENCODE = 3
-STANDING_ENCODE = 4
+STANDING_ENCODE = 0
 
-def read_data(filepath):
+def read_data(filepath) -> np.ndarray:
     data = np.load(filepath)
     return data
 
+def loss_curve(epochStats):
+    def plot_train_n_val(ax:plt.Axes, epochStats, metricName):
+        ax.set_title(metricName)
+        # training set
+        x = np.arange(len(epochStats[metricName]))
+        for metric in [metricName, "val_" + metricName]: # training set then validation set
+            ax.plot(x, epochStats[metric], label=metric)
+            coordinates = (x[-1], epochStats[metric][-1])
+            text = str(round(epochStats[metric][-1], 4))
+            ax.text(coordinates[0], coordinates[1], text, color='r')
+        ax.legend()
+        ax.set_xlabel("Epoch")
+        ax.grid()
 
+    # graph the losses and graph the accuracy in two subplots
+    x = np.arange(len(epochStats['loss']))
+    fig, ax = plt.subplots(2, 1)
+    # ax[1].axhline(y=0.66, color='g', linestyle='--')
+    ax[1].axhline(y=0.7, color='m', linestyle='--')
+    plot_train_n_val(ax[0], epochStats, 'loss')
+    plot_train_n_val(ax[1], epochStats, 'sparse_categorical_accuracy')
+    ax[0].set_ylabel("Loss")
+    ax[1].set_ylabel("Accuracy")
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     x1 = read_data("./data/walk.npy")
-    labels = []
-    for i in range(NUM_OF_SAMPLES):
-        label = WALKING_ENCODE
-        labels.append(label)
-    labels = np.asarray(labels)
-    y1 = labels
+    y1 = np.zeros((0,))
+    y1 = np.concatenate((y1, np.full((x1.shape[0],), WALKING_ENCODE)))
+    temp = read_data("./data/sit2.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), SITTING_ENCODE)))
+    temp = read_data("./data/stand2.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), STANDING_ENCODE)))
+    # for i in range(NUM_OF_SAMPLES):
+    #     label = WALKING_ENCODE
+    #     labels.append(label)
+    # labels = np.asarray(labels)
+    # y1 = labels
     print(np.shape(x1))
     print(np.shape(y1))
-    input_shape = DATA_POINTS_PER_SAMPLE * NO_DATA_PER_POINT
-    x1 = x1.reshape(x1.shape[0], input_shape, 1)
-    y1 = y1.reshape(NUM_OF_SAMPLES, 1)
-    print("Input Data Shape: ", x1.shape)
-    print("y1 data shape: ", y1.shape)
-    x1 = x1.astype('float32')
-    y1 = y1.astype('float32')
+    # input_shape = DATA_POINTS_PER_SAMPLE * NO_DATA_PER_POINT
+    # x1 = x1.reshape(x1.shape[0], DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT)
+    # y1 = y1.reshape(x1.shape[0], 1)
+    # print("Input Data Shape: ", x1.shape)
+    # print("y1 data shape: ", y1.shape)
+    # x1 = x1.astype('float32')
+    # y1 = y1.astype('float32')
 
-    x_train, y_train = x1[:40], y1[:40]
-    x_val, y_val = x1[40:50], y1[40:50]
+    # shuffle the data
+    shuffled_idx = np.random.permutation(y1.size)
+    y1 = np.copy(y1)[shuffled_idx]
+    x1 = np.copy(x1)[shuffled_idx]
+
+    trainIndex = int(x1.shape[0] * 0.8)
+    x_train, y_train = x1[:trainIndex], y1[:trainIndex]
+    x_val, y_val = x1[trainIndex:], y1[trainIndex:]
     # x_test, y_test = x1[45:50], y1[45:50]
 
     
     model1 = Sequential()
-    model1.add(InputLayer((input_shape,1)))
+    model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT)))
     model1.add(LSTM(64))
     model1.add(Dense(8, 'relu'))
-    model1.add(Dense(1, 'linear'))
+    model1.add(Dense(4, 'softmax'))
 
     model1.summary()
 
@@ -74,9 +111,12 @@ if __name__ == "__main__":
     model1.summary() """
 
     cp1 = ModelCheckpoint('model1/model1.keras', save_best_only=True)
-    model1.compile(loss=MeanSquaredError(), optimizer=Adam(learning_rate=0.0001), metrics=[RootMeanSquaredError()])
+    model1.compile(loss="sparse_categorical_crossentropy", optimizer=Adam(learning_rate=0.0001), metrics=['sparse_categorical_accuracy'])
 
-    model1.fit(x_train, y_train, epochs=10, callbacks=[cp1])
+    hist = model1.fit(x_train, y_train, epochs=100, callbacks=[cp1], validation_data=(x_val, y_val), shuffle=True)
+    loss_curve(hist.history)
+    model1.evaluate(x=x_val, y=y_val)
+    print("end")
 
     
     
