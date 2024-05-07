@@ -59,6 +59,16 @@ if __name__ == "__main__":
     temp = read_data("./data/stand2.npy")
     x1 = np.concatenate((x1, temp))
     y1 = np.concatenate((y1, np.full((temp.shape[0],), STANDING_ENCODE)))
+
+    temp = read_data("./data/walk3.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), WALKING_ENCODE)))
+    temp = read_data("./data/sit3.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), SITTING_ENCODE)))
+    temp = read_data("./data/stand3.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), STANDING_ENCODE)))
     # for i in range(NUM_OF_SAMPLES):
     #     label = WALKING_ENCODE
     #     labels.append(label)
@@ -112,7 +122,7 @@ if __name__ == "__main__":
     cp1 = ModelCheckpoint('model1/model1.keras', save_best_only=True)
     model1.compile(loss="sparse_categorical_crossentropy", optimizer=Adam(learning_rate=0.0001), metrics=['sparse_categorical_accuracy'])
 
-    hist = model1.fit(x_train, y_train, epochs=100, callbacks=[cp1], validation_data=(x_val, y_val), shuffle=True)
+    hist = model1.fit(x_train, y_train, epochs=200, callbacks=[cp1], validation_data=(x_val, y_val), shuffle=True)
     loss_curve(hist.history)
     model1.evaluate(x=x_val, y=y_val)
     print("end")
