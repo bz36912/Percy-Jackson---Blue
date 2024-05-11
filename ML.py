@@ -69,20 +69,15 @@ if __name__ == "__main__":
     temp = read_data("./data/stand3.npy")
     x1 = np.concatenate((x1, temp))
     y1 = np.concatenate((y1, np.full((temp.shape[0],), STANDING_ENCODE)))
-    # for i in range(NUM_OF_SAMPLES):
-    #     label = WALKING_ENCODE
-    #     labels.append(label)
-    # labels = np.asarray(labels)
-    # y1 = labels
+    temp = read_data("./data/running2.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), RUNNING_ENCODE)))
+    temp = read_data("./data/running3.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), RUNNING_ENCODE)))
+    
     print(np.shape(x1))
     print(np.shape(y1))
-    # input_shape = DATA_POINTS_PER_SAMPLE * NO_DATA_PER_POINT
-    # x1 = x1.reshape(x1.shape[0], DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT)
-    # y1 = y1.reshape(x1.shape[0], 1)
-    # print("Input Data Shape: ", x1.shape)
-    # print("y1 data shape: ", y1.shape)
-    # x1 = x1.astype('float32')
-    # y1 = y1.astype('float32')
 
     # shuffle the data
     shuffled_idx = np.random.permutation(y1.size)
