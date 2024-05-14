@@ -7,7 +7,6 @@ from tensorflow import keras
 import threading
 from ML_predict import UART_polling_thread_entry, MLInputQueue
 import numpy as np
-import enum
 
 root = tk.Tk()
 gui = GUI(root)
@@ -19,9 +18,13 @@ if __name__ == "__main__":
     try:
         uart = Uart('COM7') # Change depending on thing
     except:
-        uart = Uart('/dev/tty.usbmodem0010502493171')
+        try:
+            uart = Uart('/dev/tty.usbmodem0010502493171')
+        except:
+            uart = Uart('COM15')
     startTime = time.time()
     t = startTime
+    # activity_classifier = tf.keras.models.load_model('model1/activity_classification_model.keras')
     activity_classifier = tf.keras.models.load_model('model1/activity_classification_model.keras')
     # activity_classifier.summary()
 
