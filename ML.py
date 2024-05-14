@@ -98,28 +98,13 @@ if __name__ == "__main__":
 
     model1.summary()
 
-    """ model1 = Sequential()
-    model1.add(LSTMV1(32, return_sequences=True, input_shape=(input_shape,1), activation='relu'))
-    model1.add(LSTMV1(32,return_sequences=True, activation='relu'))
-    model1.add(Reshape((1, input_shape, 32)))
-    model1.add(Conv1D(filters=64,kernel_size=2, activation='relu', strides=2))
-    model1.add(Reshape((180, 64)))
-    model1.add(MaxPool1D(pool_size=4, padding='same'))
-    model1.add(Conv1D(filters=192, kernel_size=2, activation='relu', strides=1))
-    model1.add(Reshape((44, 192)))
-    model1.add(GlobalAveragePooling1D())
-    model1.add(BatchNormalization(epsilon=1e-06))
-    model1.add(Dense(6))
-    model1.add(Activation('softmax'))
-
-    model1.summary() """
-
     cp1 = ModelCheckpoint('model1/model1.keras', save_best_only=True)
     model1.compile(loss="sparse_categorical_crossentropy", optimizer=Adam(learning_rate=0.0001), metrics=['sparse_categorical_accuracy'])
 
     hist = model1.fit(x_train, y_train, epochs=200, callbacks=[cp1], validation_data=(x_val, y_val), shuffle=True)
     loss_curve(hist.history)
     model1.evaluate(x=x_val, y=y_val)
+    model1.save('model1/activity_classification_model.keras')
     print("end")
 
     
