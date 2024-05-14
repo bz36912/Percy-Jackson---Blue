@@ -18,6 +18,7 @@ WALKING_ENCODE = 1
 RUNNING_ENCODE = 2
 SITTING_ENCODE = 3
 STANDING_ENCODE = 0
+DO_NOTHING_ENCODE = 4
 
 def read_data(filepath) -> np.ndarray:
     data = np.load(filepath)
@@ -75,6 +76,9 @@ if __name__ == "__main__":
     temp = read_data("./data/running3.npy")
     x1 = np.concatenate((x1, temp))
     y1 = np.concatenate((y1, np.full((temp.shape[0],), RUNNING_ENCODE)))
+    temp = read_data("./data/do_nothing.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), DO_NOTHING_ENCODE)))
     
     print(np.shape(x1))
     print(np.shape(y1))
@@ -94,7 +98,7 @@ if __name__ == "__main__":
     model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT))) # type: ignore
     model1.add(LSTM(64)) # type: ignore
     model1.add(Dense(8, 'relu')) # type: ignore
-    model1.add(Dense(4, 'softmax')) # type: ignore
+    model1.add(Dense(5, 'softmax')) # type: ignore
 
     model1.summary()
 
@@ -104,12 +108,5 @@ if __name__ == "__main__":
     hist = model1.fit(x_train, y_train, epochs=200, callbacks=[cp1], validation_data=(x_val, y_val), shuffle=True)
     loss_curve(hist.history)
     model1.evaluate(x=x_val, y=y_val)
-    model1.save('model1/activity_classification_model.keras')
-    print("end")
-
-    
-    
-    
-    
-
-    
+    model1.save('model1/activity_classification_model_w_nothing.keras')
+    print("end")  

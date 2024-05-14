@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import keyboard
 
-NUM_SAMPLES_PER_CLASS = 50
+NUM_SAMPLES_PER_CLASS = 150
 SAMPLING_WINDOW_DURATION = 3 # sec
 SAMPLING_FREQUENCY = 40 # Hz
 NUM_FEATURES = 3
@@ -115,8 +115,8 @@ if __name__ == "__main__":
         except:
             uart = Uart('COM15')
 
-    toggle_sampling(uart, "test", "ing")
-    # continuous_sampling(uart, "check_connectivity")
+    # toggle_sampling(uart, "test", "ing")
+    continuous_sampling(uart, "do_nothing")
 
 
     
