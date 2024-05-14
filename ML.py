@@ -9,6 +9,8 @@ from tensorflow.keras.optimizers import Adam # type: ignore
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 
 
 NUM_OF_SAMPLES = 50
@@ -23,6 +25,16 @@ DO_NOTHING_ENCODE = 4
 def read_data(filepath) -> np.ndarray:
     data = np.load(filepath)
     return data
+
+def draw_confusion_matrix(model, to_predict, to_compare):
+    predictions = model.predict(to_predict)
+    predictions = np.argmax(predictions, axis=1)
+    y_test_pred = np.argmax(to_compare, axis=0)
+    cm = confusion_matrix(to_compare, predictions)
+    cm_disp = ConfusionMatrixDisplay(confusion_matrix= cm)
+    cm_disp.plot()
+    plt.show()
+    # classification_report(to_compare, predictions)
 
 def loss_curve(epochStats):
     def plot_train_n_val(ax:plt.Axes, epochStats, metricName):
@@ -107,6 +119,10 @@ if __name__ == "__main__":
 
     hist = model1.fit(x_train, y_train, epochs=200, callbacks=[cp1], validation_data=(x_val, y_val), shuffle=True)
     loss_curve(hist.history)
+
+    
     model1.evaluate(x=x_val, y=y_val)
+    draw_confusion_matrix(model1, x_train, y_train)
+
     model1.save('model1/activity_classification_model_w_nothing.keras')
     print("end")  
