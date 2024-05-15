@@ -62,12 +62,12 @@ def loss_curve(epochStats):
     plt.tight_layout()
     plt.show()
 
-def temporal_convolution_model():
+def temporal_convolution_model(): # 6,693 params
     model1 = Sequential()
     model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT)))
     model1.add(Conv1D(32, 3, activation='relu', dilation_rate=1))
-    model1.add(Conv1D(32, 3, activation='relu', dilation_rate=2))
-    model1.add(Conv1D(32, 3, activation='relu', dilation_rate=4))
+    model1.add(Conv1D(32, 3, activation='relu', dilation_rate=3))
+    model1.add(Conv1D(32, 3, activation='relu', dilation_rate=9))
     # model1.add(Conv1D(32, 3, activation='relu', dilation_rate=8))
     # model1.add(Conv1D(5, 3, activation='relu', dilation_rate=1))
     model1.add(GlobalMaxPool1D())
@@ -145,5 +145,5 @@ if __name__ == "__main__":
     model1.evaluate(x=x_val, y=y_val)
     draw_confusion_matrix(model1, x_train, y_train)
 
-    model1.save('model1/activity_classification_model_CNN_dense.keras')
-    print("end")  
+    model1.save('model1/activity_classification_model_CNN_expanded.keras')
+    print("end")

@@ -33,7 +33,7 @@ if __name__ == "__main__":
             uart = Uart('COM15')
     uartThread = threading.Thread(target=UART_polling_thread_entry, args=(uart,))
     uartThread.start()
-    activity_classifier = tf.keras.models.load_model('model1/activity_classification_model_CNN_dense.keras')
+    activity_classifier = tf.keras.models.load_model('model1/activity_classification_model_CNN_expanded.keras')
 
     prevTime = time.time()
     while True:
