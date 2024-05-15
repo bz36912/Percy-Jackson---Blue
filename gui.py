@@ -20,7 +20,7 @@ class GUI:
         self.label_z.pack(anchor="w")
 
         # Placeholder Image
-        self.placeholder_image = self.resize_image("running.png", 100, 100)  # Replace with your image path
+        self.placeholder_image = self.resize_image("Images/running.png", 100, 100)  # Replace with your image path
         self.image_label = tk.Label(root, image=self.placeholder_image)
         self.image_label.pack()
 
