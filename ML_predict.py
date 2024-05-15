@@ -33,7 +33,7 @@ if __name__ == "__main__":
             uart = Uart('COM15')
     uartThread = threading.Thread(target=UART_polling_thread_entry, args=(uart,))
     uartThread.start()
-    activity_classifier = tf.keras.models.load_model('model1/activity_classification_model_w_nothing.keras')
+    activity_classifier = tf.keras.models.load_model('model1/activity_classification_model_CNN_dense.keras')
 
     prevTime = time.time()
     while True:
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         prevTime = time.time()
 
         predictedClass = np.argmax(pred)
-        if pred[0, predictedClass] > 0.9:
+        if pred[0, predictedClass] > 0.7:
             print(f"class is {predictedClass}, prob: {pred[0, predictedClass]}")
         else:
             print(f"MAYBE class {predictedClass}, prob: {pred[0, predictedClass]}")

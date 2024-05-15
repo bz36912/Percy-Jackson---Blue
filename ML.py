@@ -62,6 +62,31 @@ def loss_curve(epochStats):
     plt.tight_layout()
     plt.show()
 
+def temporal_convolution_model():
+    model1 = Sequential()
+    model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT)))
+    model1.add(Conv1D(32, 3, activation='relu', dilation_rate=1))
+    model1.add(Conv1D(32, 3, activation='relu', dilation_rate=2))
+    model1.add(Conv1D(32, 3, activation='relu', dilation_rate=4))
+    # model1.add(Conv1D(32, 3, activation='relu', dilation_rate=8))
+    # model1.add(Conv1D(5, 3, activation='relu', dilation_rate=1))
+    model1.add(GlobalMaxPool1D())
+    model1.add(Dense(5))
+    model1.add(Softmax())
+
+    model1.summary()
+    return model1
+
+def lstm_model():
+    model1 = Sequential()
+    model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT))) # type: ignore
+    model1.add(LSTM(64)) # type: ignore
+    model1.add(Dense(8, 'relu')) # type: ignore
+    model1.add(Dense(5, 'softmax')) # type: ignore
+
+    model1.summary()
+    return model1
+
 if __name__ == "__main__":
     x1 = read_data("./data/walk.npy")
     y1 = np.zeros((0,))
@@ -88,7 +113,10 @@ if __name__ == "__main__":
     temp = read_data("./data/running3.npy")
     x1 = np.concatenate((x1, temp))
     y1 = np.concatenate((y1, np.full((temp.shape[0],), RUNNING_ENCODE)))
-    temp = read_data("./data/do_nothing.npy")
+    temp = read_data("./data/do_nothing_while_sitting.npy")
+    x1 = np.concatenate((x1, temp))
+    y1 = np.concatenate((y1, np.full((temp.shape[0],), DO_NOTHING_ENCODE)))
+    temp = read_data("./data/do_nothing_while_standing.npy")
     x1 = np.concatenate((x1, temp))
     y1 = np.concatenate((y1, np.full((temp.shape[0],), DO_NOTHING_ENCODE)))
     
@@ -105,14 +133,7 @@ if __name__ == "__main__":
     x_val, y_val = x1[trainIndex:], y1[trainIndex:]
     # x_test, y_test = x1[45:50], y1[45:50]
 
-    
-    model1 = Sequential()
-    model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT))) # type: ignore
-    model1.add(LSTM(64)) # type: ignore
-    model1.add(Dense(8, 'relu')) # type: ignore
-    model1.add(Dense(5, 'softmax')) # type: ignore
-
-    model1.summary()
+    model1 = temporal_convolution_model()
 
     cp1 = ModelCheckpoint('model1/model1.keras', save_best_only=True)
     model1.compile(loss="sparse_categorical_crossentropy", optimizer=Adam(learning_rate=0.0001), metrics=['sparse_categorical_accuracy'])
@@ -124,5 +145,5 @@ if __name__ == "__main__":
     model1.evaluate(x=x_val, y=y_val)
     draw_confusion_matrix(model1, x_train, y_train)
 
-    model1.save('model1/activity_classification_model_w_nothing.keras')
+    model1.save('model1/activity_classification_model_CNN_dense.keras')
     print("end")  
