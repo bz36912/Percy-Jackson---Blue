@@ -1,5 +1,12 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+from ML import WALKING_ENCODE, RUNNING_ENCODE, SITTING_ENCODE, STANDING_ENCODE, DO_NOTHING_ENCODE
+
+
+previous_class = None
+current_class  = None
+
+
 
 class GUI:
     def __init__(self, root):
@@ -19,9 +26,12 @@ class GUI:
         self.label_y.pack(anchor="w")
         self.label_z.pack(anchor="w")
 
-        # Placeholder Image
-        self.placeholder_image = self.resize_image("Images/running.png", 100, 100)  # Replace with your image path
-        self.image_label = tk.Label(root, image=self.placeholder_image)
+        self.previous_activity = self.resize_image("Images/sitting.png", 100, 100) 
+        self.image_label = tk.Label(root, image=self.previous_activity)
+        self.image_label.pack()
+
+        self.current_activity = self.resize_image("Images/running.png", 100, 100)
+        self.image_label = tk.Label(root, image=self.current_activity)
         self.image_label.pack()
 
 
@@ -42,3 +52,35 @@ class GUI:
 
     def update(self):
         self.root.update()
+
+    def change_previous(self, activityClass):
+        if (activityClass == WALKING_ENCODE):
+            self.previous_activity = self.resize_image("Images/walking.png")
+        elif (activityClass == RUNNING_ENCODE):
+            self.previous_activity = self.resize_image("Images/running.png")
+        elif (activityClass == SITTING_ENCODE):
+            self.previous_activity = self.resize_image("Images/sitting.png")
+        elif (activityClass == STANDING_ENCODE):
+            self.previous_activity = self.resize_image("Images/standin.png")
+    
+    def change_current(self, activityClass):
+        if (activityClass == WALKING_ENCODE):
+            self.current_activity = self.resize_image("Images/walking.png")
+        elif (activityClass == RUNNING_ENCODE):
+            self.current_activity = self.resize_image("Images/running.png")
+        elif (activityClass == SITTING_ENCODE):
+            self.current_activity = self.resize_image("Images/sitting.png")
+        elif (activityClass == STANDING_ENCODE):
+            self.current_activity = self.resize_image("Images/standin.png")
+
+    def change_images(self, predictedClass):
+        if previous_class is not None:
+            self.change_current(predictedClass)
+            previous_class = current_class
+            current_class = predictedClass
+            self.change_previous(previous_class)
+        elif previous_class is None:
+            previous_class = predictedClass
+            current_class = predictedClass
+            self.change_current(predictedClass)
+            self.change_previous(predictedClass)

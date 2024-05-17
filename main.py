@@ -11,6 +11,8 @@ import numpy as np
 root = tk.Tk()
 gui = GUI(root)
 
+
+
 if __name__ == "__main__":
     
     # Example of changing label text
@@ -48,8 +50,9 @@ if __name__ == "__main__":
             predictedClass = np.argmax(pred)
             if pred[0, predictedClass] > 0.6:
                 print(pred, "predicted class is", predictedClass)
+                gui.change_images(predictedClass)
             else:
                 print("prediction is UNCERTAIN")
             gui.update()
         except:
-            pass # the MLInput is currently not ready
+            pass
