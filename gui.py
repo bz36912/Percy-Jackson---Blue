@@ -11,7 +11,7 @@ class GUI:
     def __init__(self, root):
         self.root = root
         self.root.title("GUI")
-        self.root.geometry("1000x1200")
+        self.root.geometry("200x400")
         # self.root.appearance_mode = "light"  # Set appearance mode to light
         ctk.set_appearance_mode("light")
 
