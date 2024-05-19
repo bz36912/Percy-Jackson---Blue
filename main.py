@@ -7,6 +7,7 @@ from tensorflow import keras
 import threading
 from ML_predict import UART_polling_thread_entry, MLInputQueue
 import numpy as np
+from mqtt import mqtt_thread_start, mqttTxDataQueue
 
 root = tk.Tk()
 gui = GUI(root)
@@ -31,6 +32,7 @@ if __name__ == "__main__":
 
     uartThread = threading.Thread(target=UART_polling_thread_entry, args=(uart,))
     uartThread.start()
+    mqtt_thread_start()
     gui.update()
     while True:        
         MLInput = MLInputQueue.get(block=True)
@@ -41,6 +43,7 @@ if __name__ == "__main__":
             if predictedClass != 4:
                 gui.change_images(predictedClass)
                 gui.output_text_message(str(np.max(pred)))
+                mqttTxDataQueue.put(predictedClass)
                 gui.update()
             # else:
             #     gui.output_text_message("")

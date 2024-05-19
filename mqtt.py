@@ -2,40 +2,38 @@ import paho.mqtt.client as mqtt
 import threading
 from queue import Queue
 
+# MQTT broker information
+broker = "csse4011-iot.zones.eait.uq.edu.au"
+port = 1883
+topic = "un47043712"
+
 mqttTxDataQueue = Queue(30)
 
-def on_publish(client, userdata, mid, reason_code, properties):
-    # reason_code and properties will only be present in MQTTv5. It's always unset in MQTTv3
-    try:
-        userdata.remove(mid)
-    except KeyError:
-        print("on_publish() is called with a mid not present in unacked_publish")
-        print("This is due to an unavoidable race-condition:")
-        print("* publish() return the mid of the message sent.")
-        print("* mid from publish() is added to unacked_publish by the main thread")
-        print("* on_publish() is called by the loop_start thread")
-        print("While unlikely (because on_publish() will be called after a network round-trip),")
-        print(" this is a race-condition that COULD happen")
-        print("")
-        print("The best solution to avoid race-condition is using the msg_info from publish()")
-        print("We could also try using a list of acknowledged mid rather than removing from pending list,")
-        print("but remember that mid could be re-used !")
+def publish_input(client):
+    while True:
+        msg = mqttTxDataQueue.get()
+        # Publish the user input to the specified topic
+        client.publish(topic, str(msg))
+        # print(f"Message '{msg}' sent to topic '{topic}'")
 
-def send_message(mqttc, message):
-    unacked_publish = set()
-    mqttc.user_data_set(unacked_publish)
-    # message should come from the receive data queue
-    msg_info = mqttc.publish("un47043712", message, qos=1)
-    unacked_publish.add(msg_info.mid)
-    msg_info.wait_for_publish()
+
+def on_connect(client, userdata, flags, rc):
+    print(f"Connected with result code {rc}")
 
 def mqtt_entry():
-    mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-    mqttc.on_publish = on_publish
-    mqttc.user_data_set([])
-    mqttc.connect("csse4011-iot.zones.eait.uq.edu.au")
-    mqttc.loop_forever()
-    print(f"Received the following message: {mqttc.user_data_get()}")
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    client.on_connect = on_connect
+    client.user_data_set([])
+    client.connect(broker)
+    try:
+        # Run the publish_input function in the main thread
+        publish_input(client)
+    finally:
+        # Stop the MQTT loop and disconnect
+        client.loop_stop()
+        client.disconnect()
+        print("Disconnected from broker")
+    print(f"Received the following message: {client.user_data_get()}")
 
 
 def mqtt_thread_start():
