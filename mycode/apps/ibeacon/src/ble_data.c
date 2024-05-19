@@ -2,9 +2,15 @@
 #include <zephyr/bluetooth/hci.h>
 
 static bool firstTime = true; // flag; true if advertisement has not started
-static bool enablePrint = true;
-static uint8_t indexCount = 0;
+static bool enablePrint = true; // enable additional debug print messages
+static uint8_t indexCount = 0; // used to mark the chronogical order the adverts were advertised
 
+/**
+ * @brief encodes floats into bytes values
+ * 
+ * @param input the floats
+ * @param output the encoded bytes values
+ */
 static void ble_to_bytes(float* input, uint8_t output[AD_PAYLOAD_LEN]) {
     for (int i = 0; i < AD_PAYLOAD_LEN; i += 2) {
         short temp;
@@ -18,6 +24,13 @@ static void ble_to_bytes(float* input, uint8_t output[AD_PAYLOAD_LEN]) {
     }
 }
 
+/**
+ * @brief put the UUID and encoded accelerometer data into the BLE advertisment
+ * 
+ * @param readings the accelerometer data
+ * @param output a buffer for recording the advertisement encoded as bytes
+ * @return const struct bt_data contains the encoded bytes
+ */
 static const struct bt_data ble_create_advert(float* readings, uint8_t* output) {
     const uint8_t AD_UUID[AD_UUID_LEN] = {0xF1, 0x45, 0x98}; // 0x91
     memset(output, 0, (size_t)(AD_MAX_NUM_BYTES));
@@ -40,6 +53,11 @@ static const struct bt_data ble_create_advert(float* readings, uint8_t* output) 
     return content;
 }
 
+/**
+ * @brief starts advertising or updates if there was already an advertisement
+ * 
+ * @param readings the values to be advertised
+ */
 extern void ble_advertise_readings(float* readings) {
     uint8_t output[AD_MAX_NUM_BYTES];
     const struct bt_data content = ble_create_advert(readings, output);
@@ -76,6 +94,10 @@ extern void ble_advertise_readings(float* readings) {
 	}
 }
 
+/**
+ * @brief starts the BLE in Zephyr
+ * 
+ */
 extern void ble_setup() {
     int err;
 	err = bt_enable(NULL);

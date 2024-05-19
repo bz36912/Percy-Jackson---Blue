@@ -18,6 +18,11 @@ extern void usb_uart_send_str(char *str)
 	uart_poll_out(usbUart, '\n');
 }
 
+/**
+ * @brief sets up the UART connection to the PC
+ * 
+ * @return int 0 on success, else it is an error
+ */
 extern int usb_uart_setup() {
 	if (!device_is_ready(usbUart)) {
 		printf("UART device not found!");

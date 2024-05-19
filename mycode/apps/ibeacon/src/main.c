@@ -26,7 +26,6 @@ int main(void)
 	mysensor_setup(accMeter);
 
 	printf("before the while loop\n");
-	// int64_t prevTime = k_uptime_get();
 	while (true) {
 		float readings[AD_MAX_NUM_READINGS * ACC_NUM_AXIS];
 		for (int i = 0; i < AD_MAX_NUM_READINGS; i++) {

@@ -11,6 +11,12 @@ static struct bt_le_scan_param scan_param = {
 K_MSGQ_DEFINE(bleQueue, sizeof(float) * QUEUE_ELEM_SIZE, 20, 1);
 static char targetAddr[BT_ADDR_LE_STR_LEN] = ""; // the BLE address to look/filter for
 
+/**
+ * @brief convert the encoded bytes into floats
+ * 
+ * @param input the encoded bytes
+ * @param output floats
+ */
 static void ble_to_readings(uint8_t input[AD_PAYLOAD_LEN], float* output) {
     short temp;
     for (int i = 0; i < AD_PAYLOAD_LEN; i += 2) {
@@ -19,6 +25,14 @@ static void ble_to_readings(uint8_t input[AD_PAYLOAD_LEN], float* output) {
     }
 }
 
+/**
+ * @brief NRF board uses this function to check if BLE device on the scan is Thingy:52
+ * 
+ * @param data the scanned device's data
+ * @param addrStr the MAC address string of the scanned device
+ * @return true there is more information after this packet
+ * @return false all information of this packet is read
+ */
 static bool search_eir_found(struct bt_data *data, void *addrStr)
 {
     const uint8_t AD_UUID[AD_UUID_LEN] = {0xF1, 0x45, 0x98};
@@ -29,7 +43,16 @@ static bool search_eir_found(struct bt_data *data, void *addrStr)
     return false;
 }
 
-static int transIndex = 0;
+static int transIndex = 0; // used to find duplicate advertisements being received
+/**
+ * @brief after finding the Thingy:52, this function reads the acceleration information 
+ * in the Thingy:52 advertisement
+ * 
+ * @param data the scanned device's data
+ * @param addrStr the MAC address string of the scanned device
+ * @return true there is more information after this packet
+ * @return false all information of this packet is read
+ */
 static bool extract_eir_found(struct bt_data *data, void *addrStr)
 {
     float readings[QUEUE_ELEM_SIZE];
@@ -73,6 +96,10 @@ static void ble_scan_device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t
     }
 }
 
+/**
+ * @brief sets up the BLE in Zephyr
+ * 
+ */
 extern void ble_setup() {
     int err;
 	err = bt_enable(NULL);

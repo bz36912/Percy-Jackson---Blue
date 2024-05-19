@@ -21,7 +21,7 @@
 #define AD_MAX_NUM_READINGS (int)(AD_PAYLOAD_LEN / ACC_BYTES_PER_READING)
 
 #define QUEUE_ELEM_SIZE (AD_MAX_NUM_READINGS * ACC_NUM_AXIS + 1) // the numbeer of floats in each element
-extern struct k_msgq bleQueue;
+extern struct k_msgq bleQueue; // for passing information between the BLE thread to the UART thread
 
 extern void ble_advertise_readings(float* readings);
 extern void ble_setup();
