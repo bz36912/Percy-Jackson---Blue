@@ -45,9 +45,6 @@ if __name__ == "__main__":
                 gui.output_text_message(str(np.max(pred)))
                 mqttTxDataQueue.put(predictedClass)
                 gui.update()
-            # else:
-            #     gui.output_text_message("")
-            #     gui.update()
         else:
             print("prediction is UNCERTAIN class", predictedClass, pred[0, predictedClass])
         

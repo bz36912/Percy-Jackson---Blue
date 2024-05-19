@@ -12,9 +12,7 @@ mqttTxDataQueue = Queue(30)
 def publish_input(client):
     while True:
         msg = mqttTxDataQueue.get()
-        # Publish the user input to the specified topic
         client.publish(topic, str(msg))
-        # print(f"Message '{msg}' sent to topic '{topic}'")
 
 
 def on_connect(client, userdata, flags, rc):
@@ -26,7 +24,6 @@ def mqtt_entry():
     client.user_data_set([])
     client.connect(broker)
     try:
-        # Run the publish_input function in the main thread
         publish_input(client)
     finally:
         # Stop the MQTT loop and disconnect
