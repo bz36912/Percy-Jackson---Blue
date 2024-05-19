@@ -5,34 +5,36 @@ from ML import WALKING_ENCODE, RUNNING_ENCODE, SITTING_ENCODE, STANDING_ENCODE, 
 previous_class = None
 current_class  = None
 
-
-
+# GUI class that the gui program runs in
+# Is initialised and called in the main.py file
 class GUI:
     def __init__(self, root):
         self.root = root
         self.root.title("GUI")
         self.root.geometry("200x400")
-        # self.root.appearance_mode = "light"  # Set appearance mode to light
         ctk.set_appearance_mode("light")
 
         self.save_image_paths()
 
-        # Previous activity image label
+        # Previous activity image label - shows the image of the previous activity performed by the user
         self.previous_activity_label = ctk.CTkLabel(root, image=self.sitting_png, text="Previous Activity", compound="top", fg_color="#8f8483")
         self.previous_activity_label.pack(pady=10)
 
-        # Current activity image label
+        # Current activity image label - shows the image of the current activity being performed by the user
         self.current_activity_label = ctk.CTkLabel(root, image=self.sitting_png, text="Current Activity",compound="top", fg_color="#8f8483")
         self.current_activity_label.pack(pady=10)
 
-        # Output Box
+        # Output Text Box - displays the probability of the detected action
         self.output_text = ctk.CTkTextbox(root, height=100, width=100, fg_color="#8f8483")
         self.output_text.pack(pady=10)
 
+    # FUnction that update the image of either the previous activity image of the current acitivty image depending on th label input
     def update_image(self, image, label):
         label.configure(image=image)
         label.image = image
 
+    # Opens the image from the given path and resizes it to 100x100 pixels
+    # returns a photoTk.PhotoImage
     def open_resized_image(self, filePath):
         original_image = Image.open(filePath)
         resized_image = original_image.resize((100, 100), Image.LANCZOS)
