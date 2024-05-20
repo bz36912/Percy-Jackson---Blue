@@ -1,6 +1,8 @@
 /*
 *******************************************************************************
-* This code was built mostly with the M5core2 MQTT example code and the newping.h library
+* This code was written by Daniel Barone
+* This code was built mostly with the M5core2 MQTT example code other basic m5core2 examples
+* This code needs to be run in the arduino IDE ensuring the the m5core2 lirbaries are installed
 *******************************************************************************
 */
 #include "M5Core2.h"
@@ -20,7 +22,7 @@ unsigned long lastMsg = 0;
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
 
-int current_activity = 4;
+int current_activity = 4; // Holds the encoded value of the current activity
 
 extern const unsigned char previewR[120264];
 
@@ -47,9 +49,9 @@ void loop() {
     client.loop();  // This function is called periodically to allow clients to
                     // process incoming messages and maintain connections to the
                     // server.
-    if (current_activity == 3){
+    if (current_activity == 3){ // If the current activity is SITTING then it does the following
         M5.Axp.SetVibration(true);  // Turn on the VIbration
-        M5.Spk.PlaySound(previewR, sizeof(previewR));  // Play the DingDong sound.  播放 DingDong 声音
+        M5.Spk.PlaySound(previewR, sizeof(previewR));  // Play the DingDong sound. 
     } else{
         M5.Axp.SetVibration(false);  // Turn on the VIbration
     }
@@ -65,6 +67,7 @@ void loop() {
     }
 }
 
+// This fucntion sets up the wifi connection
 void setupWifi() {
     delay(10);
     M5.Lcd.printf("Connecting to %s", ssid);
@@ -86,6 +89,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     int activity = atoi(returned);
     M5.Lcd.print("Activity is: ");
+    // The following ogic determined the activity that is being performed and displays it on screen
     if (activity == 0){
         M5.Lcd.print("Standing");
         current_activity = activity;
@@ -124,6 +128,7 @@ void reConnect() {
     }
 }
 
+// This is the list that holds the values for the dingdong sound
 const unsigned char previewR[120264] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
