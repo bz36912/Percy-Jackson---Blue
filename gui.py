@@ -1,7 +1,16 @@
+"""
+gui.py written by Daniel Barone
+This program runs the GUI that displays the results predicted in main.py.
+The gui is initialized in the main files by using gui = GUI(root)
+The only other functions that are used externally are Update(), change_images(), and output_text_message()
+"""
+
+
 import customtkinter as ctk
 from PIL import Image, ImageTk
 from ML import WALKING_ENCODE, RUNNING_ENCODE, SITTING_ENCODE, STANDING_ENCODE, DO_NOTHING_ENCODE
 
+# Global variables that keep track of the previous and current activity
 previous_class = None
 current_class  = None
 
@@ -34,21 +43,25 @@ class GUI:
         label.image = image
 
     # Opens the image from the given path and resizes it to 100x100 pixels
-    # returns a photoTk.PhotoImage
+    # returns a photoTk.PhotoImage variable
     def open_resized_image(self, filePath):
         original_image = Image.open(filePath)
         resized_image = original_image.resize((100, 100), Image.LANCZOS)
         return ImageTk.PhotoImage(resized_image)
 
+    # function opens all image paths at once
+    # Used upon initialization 
     def save_image_paths(self):
         self.walking_png = self.open_resized_image("Images/walking.png")
         self.running_png = self.open_resized_image("Images/running.png")
         self.sitting_png = self.open_resized_image("Images/sitting.png")
         self.standing_png = self.open_resized_image("Images/standing.png")
 
+    # Function called in main.py to update the gui
     def update(self):
         self.root.update()
 
+    # Function that changes the previous_activity variables depending on the inputted activity class
     def change_previous(self, activityClass):
         global previous_class
         if activityClass == WALKING_ENCODE:
@@ -60,6 +73,7 @@ class GUI:
         elif activityClass == STANDING_ENCODE:
             self.previous_activity = self.update_image(self.standing_png, self.previous_activity_label)
 
+    # Function that changes the current_activity variables depending on the inputted activity class
     def change_current(self, activityClass):
         global current_class
         if activityClass == WALKING_ENCODE:
@@ -71,6 +85,7 @@ class GUI:
         elif activityClass == STANDING_ENCODE:
             self.current_activity = self.update_image(self.standing_png, self.current_activity_label)
 
+    # Function called in main.py while inputting the predictedClass to change the images on the GUI
     def change_images(self, predictedClass):
         global previous_class
         global current_class
@@ -85,6 +100,7 @@ class GUI:
             self.change_current(predictedClass)
             self.change_previous(predictedClass)
 
+    # FUnction which outputs the probability of the predicted class on the gui
     def output_text_message(self, message):
-        self.output_text.delete('1.0', ctk.END)
-        self.output_text.insert(ctk.END, message + '\n')
+        self.output_text.delete('1.0', ctk.END) # This line can be remove if the user does not want the output box to be refreshed
+        self.output_text.insert(ctk.END, message + '\n') 

@@ -1,3 +1,13 @@
+'''
+data_log.py written by Bolong (Jack) Zhang
+data_log.py is the program used to record data points.
+There are two modes for recording data: continous sampling and toggled sampling
+For the models created, toggled sampling was used for the sitting and standing data whereas continous was used for running and walking
+This file is ran independintly of the main.py file
+If users want to collect more data, they can modify the macros defined at the beginning of the file
+and define whether they are using toggled or continous sampling
+'''
+
 from uart import Uart
 import time
 import numpy as np

@@ -1,3 +1,9 @@
+"""
+test_predictions.py written by Bolong (Jack) Zhang and Daniel Barone
+Program loads a pre-existing keras model and makes predictions on data points passed into the data variable
+Porgram is only used to test the model to check if it can accuratly predict the activity based off the data given
+"""
+
 import time
 import tensorflow as tf
 from tensorflow import keras

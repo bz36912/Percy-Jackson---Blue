@@ -1,3 +1,16 @@
+""" 
+ ML.py files written by Bolong (Jack) Zhang and Daniel Barone
+ This file is used to open the data that was collected and train the model on that data
+ Currently there are two different models implemented in the file: temporal convolution and lstm
+ This file can be modified to accomodate different types of data, and different types of activities by changing the following:
+    - To change the activity types, modify the encoded values of the activities as well as modifying htme in the approapriate positions in y1
+    - To change the types of data modify the NUM_OF_SAMPLES, DATA_POINTS_PER_SAMPLE and NO_DATA_PER_POINT variables
+Running this program will display both a loss curve and a confusion matrix of the trained model.
+Additionally, it will also save the model to the file path indicated in the model1.save() function
+"""
+
+
+
 import numpy as np
 from tensorflow import keras
 from tensorflow.keras.models import Sequential # type: ignore
@@ -12,20 +25,24 @@ import os
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 
+# Variables the keep track of how the data was collected
+NUM_OF_SAMPLES = 50 # This is the number of samples that is in a given file
+DATA_POINTS_PER_SAMPLE = 120 # This is the number of data points in each sample
+NO_DATA_PER_POINT = 3 # This is teh number of dimension to each data point, it is 3 for x, y, z acceleration
 
-NUM_OF_SAMPLES = 50
-DATA_POINTS_PER_SAMPLE = 120
-NO_DATA_PER_POINT = 3
+# The encoded values of each of the activities being learned
 WALKING_ENCODE = 1
 RUNNING_ENCODE = 2
 SITTING_ENCODE = 3
 STANDING_ENCODE = 0
 DO_NOTHING_ENCODE = 4
 
+# Function that reads data from the given filepath and always returns a numpy array
 def read_data(filepath) -> np.ndarray:
     data = np.load(filepath)
     return data
 
+# Function that draws a confusion matrix on the model given by the user
 def draw_confusion_matrix(model, to_predict, to_compare):
     predictions = model.predict(to_predict)
     predictions = np.argmax(predictions, axis=1)
@@ -36,6 +53,7 @@ def draw_confusion_matrix(model, to_predict, to_compare):
     plt.show()
     # classification_report(to_compare, predictions)
 
+# Grapths the loss curve of the evaluated model
 def loss_curve(epochStats):
     def plot_train_n_val(ax:plt.Axes, epochStats, metricName):
         ax.set_title(metricName)
@@ -62,6 +80,7 @@ def loss_curve(epochStats):
     plt.tight_layout()
     plt.show()
 
+# One of the 2 potential models used, which is temporal convolution
 def temporal_convolution_model(): # 6,693 params
     model1 = Sequential()
     model1.add(InputLayer((DATA_POINTS_PER_SAMPLE, NO_DATA_PER_POINT)))
@@ -88,6 +107,8 @@ def lstm_model():
     return model1
 
 if __name__ == "__main__":
+    # The following lines of code reads from the specified files and concatenates the values to x1
+    # THen it concatenates the appropriate number of labels to y1
     x1 = read_data("./data/walk.npy")
     y1 = np.zeros((0,))
     y1 = np.concatenate((y1, np.full((x1.shape[0],), WALKING_ENCODE)))
@@ -97,7 +118,6 @@ if __name__ == "__main__":
     temp = read_data("./data/stand2.npy")
     x1 = np.concatenate((x1, temp))
     y1 = np.concatenate((y1, np.full((temp.shape[0],), STANDING_ENCODE)))
-
     temp = read_data("./data/walk3.npy")
     x1 = np.concatenate((x1, temp))
     y1 = np.concatenate((y1, np.full((temp.shape[0],), WALKING_ENCODE)))
@@ -128,10 +148,10 @@ if __name__ == "__main__":
     y1 = np.copy(y1)[shuffled_idx]
     x1 = np.copy(x1)[shuffled_idx]
 
+    # SPecify the training data and the validation data
     trainIndex = int(x1.shape[0] * 0.8)
     x_train, y_train = x1[:trainIndex], y1[:trainIndex]
     x_val, y_val = x1[trainIndex:], y1[trainIndex:]
-    # x_test, y_test = x1[45:50], y1[45:50]
 
     model1 = temporal_convolution_model()
 
